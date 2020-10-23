@@ -3,55 +3,140 @@ package com.vietis.sqlite;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import java.util.ArrayList;
+import java.util.List;
 
-    private TextView reset_number, reset_calculate, remove_number, divide,
-            num_7, num_8, num_9, multiply, num_4, num_5, num_6, subtract,
-            num_3, num_2, num_1, num_0, add, equal, result;
+public class MainActivity extends AppCompatActivity {
+
+    private String changeFrom = "VND";
+    private String changeTo = "VND";
+
+    private List<String> items;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        init();
+        float USD_TO_VND = 23178.0f;
+        float USD_TO_EUR = 0.84f;
+        float VND_TO_EUR = 0.000036f;
+        float VND_TO_USD = 0.000043f;
+        float EUR_TO_USD = 1.19f;
+        float EUR_TO_VND = 27475.0f;
 
-    }
+        EditText amountEt = findViewById(R.id.amount);
+        TextView resultTv = findViewById(R.id.result);
 
-    @Override
-    public void onClick(View view) {
-        int id = view.getId();
-        switch (id) {
-            case R.id.reset_number:
+        items = new ArrayList<>();
+        items.add("VND");
+        items.add("USD");
+        items.add("EUR");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_dropdown_item, items);
+        Spinner spinnerFrom = findViewById(R.id.spinnerFrom);
+        Spinner spinnerTo = findViewById(R.id.spinnerTo);
+
+        spinnerFrom.setAdapter(adapter);
+        spinnerTo.setAdapter(adapter);
+        spinnerFrom.setSelection(0);
+        spinnerTo.setSelection(0);
+
+        spinnerFrom.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                changeFrom = items.get(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        spinnerTo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                changeTo = items.get(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        switch (changeFrom) {
+            case "USD":
+                switch (changeTo) {
+                    case "VND":
+                        changeMoney(amountEt, resultTv, USD_TO_VND);
+                        break;
+                    case "EUR":
+                        changeMoney(amountEt, resultTv, USD_TO_EUR);
+                        break;
+                    default:
+                        resultTv.setText(amountEt.getText().toString().trim());
+                        break;
+                }
                 break;
-            case R.id.reset_calculate:
+            case "VND":
+                switch (changeTo) {
+                    case "EUR":
+                        changeMoney(amountEt, resultTv, VND_TO_EUR);
+                        break;
+                    case "USD":
+                        changeMoney(amountEt, resultTv, VND_TO_USD);
+                        break;
+                    default:
+                        resultTv.setText(amountEt.getText().toString().trim());
+                        break;
+                }
+                break;
+            case "EUR":
+                switch (changeTo) {
+                    case "USD":
+                        changeMoney(amountEt, resultTv, EUR_TO_USD);
+                        break;
+                    case "VND":
+                        changeMoney(amountEt, resultTv, EUR_TO_VND);
+                        break;
+                    default:
+                        resultTv.setText(amountEt.getText().toString().trim());
+                        break;
+                }
                 break;
         }
     }
 
-    private void init() {
-        reset_number = findViewById(R.id.reset_number);
-        reset_calculate = findViewById(R.id.reset_calculate);
-        remove_number = findViewById(R.id.remove_number);
-        divide = findViewById(R.id.divide);
-        num_7 = findViewById(R.id.num_7);
-        num_8 = findViewById(R.id.num_8);
-        num_9 = findViewById(R.id.num_9);
-        num_6 = findViewById(R.id.num_6);
-        num_5 = findViewById(R.id.num_5);
-        num_4 = findViewById(R.id.num_4);
-        num_3 = findViewById(R.id.num_3);
-        num_2 = findViewById(R.id.num_2);
-        num_1 = findViewById(R.id.num_1);
-        num_0 = findViewById(R.id.num_0);
-        multiply = findViewById(R.id.multiply);
-        subtract = findViewById(R.id.subtract);
-        add = findViewById(R.id.add);
-        equal = findViewById(R.id.equal);
-        result = findViewById(R.id.result);
+    private void changeMoney(EditText amountEt, final TextView resultTv, final float change) {
+        amountEt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                float money = Integer.parseInt(editable.toString()) * change;
+                resultTv.setText(String.valueOf(money));
+            }
+        });
     }
 
 }
